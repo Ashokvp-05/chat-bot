@@ -28,14 +28,12 @@ def get_embeddings(_model, docs):
     index.add(np.array(embeddings))
     return index
 
-# Load everything with caching
 with st.spinner("Initializing AI Engine..."):
     docs = get_documents()
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display chat messages from history on app rerun
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -45,7 +43,6 @@ if len(docs) > 0:
     embedding_model, qa_model = load_models()
     index = get_embeddings(embedding_model, docs)
     
-    # Sidebar: Document Info
     with st.sidebar:
         st.success(f"Processed {len(docs)} chunks of text.")
         with st.expander("Debugging & Stats"):
@@ -53,7 +50,6 @@ if len(docs) > 0:
             if len(docs) > 0:
                 st.write(f"Sample: {docs[0][:100]}...")
 
-    # Accept user input
     if prompt := st.chat_input("Ask a question about your PDF..."):
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -61,7 +57,6 @@ if len(docs) > 0:
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Display assistant response in chat message container
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
@@ -71,14 +66,11 @@ if len(docs) > 0:
                     q_vector = embedding_model.encode([prompt])
                     D, I = index.search(np.array(q_vector), k=3)
                     
-                    # Search logic
                     retrieved_chunks = [docs[i] for i in I[0]]
                     context = " ".join(retrieved_chunks)
                     
-                    # Get Answer
                     answer = qa_model(question=prompt, context=context)
                     
-                    # Formulate response
                     response_text = answer['answer']
                     confidence = answer['score']
 
@@ -100,13 +92,11 @@ if len(docs) > 0:
 
             message_placeholder.markdown(full_response)
             
-        # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 else:
     st.error("No text found. Please check your docs/ folder.")
 
-# Sidebar tips (Moved to bottom)
 with st.sidebar:
     st.divider()
     st.header("💡 Tips")
