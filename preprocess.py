@@ -4,7 +4,7 @@ import pytesseract
 from pdf2image import convert_from_path
 import platform
 
-# Set Tesseract path for Windows
+
 poppler_path = None
 if platform.system() == "Windows":
     # Common default install locations for Tesseract
@@ -18,8 +18,6 @@ if platform.system() == "Windows":
             pytesseract.pytesseract.tesseract_cmd = path
             break
             
-    # Set Poppler path - assuming it's in the project directory under 'poppler'
-    # Based on the manual download structure: poppler/poppler-24.08.0/Library/bin
     base_poppler = os.path.abspath("poppler")
     if os.path.exists(base_poppler):
         for root, dirs, files in os.walk(base_poppler):
@@ -36,7 +34,6 @@ def extract_text_from_pdf(file_path):
             if page_text:
                 text += page_text + "\n"
     
-    # Method 2: Fallback to OCR if text is empty or too short
     if len(text.strip()) < 50:
         print(f"Native extraction failed for {file_path}. Trying OCR...")
         try:
